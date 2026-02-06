@@ -143,21 +143,11 @@ function Layout({ children }) {
                       sx={{
                         minWidth: 40,
                         color: isActive(item.path) ? '#2196f3' : '#666',
+                        display: 'flex',
+                        justifyContent: 'center',
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: '0.75rem',
-                            mr: 1,
-                          }}
-                        >
-                          {item.code}
-                        </Typography>
-                        {React.cloneElement(item.icon, { fontSize: 'small' })}
-                      </Box>
+                      {React.cloneElement(item.icon, { fontSize: 'small' })}
                     </ListItemIcon>
                     <ListItemText
                       primary={item.text}
