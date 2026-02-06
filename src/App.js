@@ -1,43 +1,67 @@
 import React from 'react';
-import { Container, Typography, Box } from '@mui/material';
-import { useAuth } from './context/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import PrivateRoute from './components/PrivateRoute';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import HomePage from './pages/HomePage';
+import ClientListPage from './pages/ClientListPage';
+import ClientFormPage from './pages/ClientFormPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
-  const { user, isAuthenticated } = useAuth();
-
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ mt: 8, textAlign: 'center' }}>
-        <Typography variant="h3" component="h1" gutterBottom>
-          Sistema de Gestión de Clientes
-        </Typography>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          Innovasoft S.A.
-        </Typography>
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="body1">
-            Estado de autenticación: {isAuthenticated() ? 'Autenticado' : 'No autenticado'}
-          </Typography>
-          {user && (
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              Usuario: {user.username || user.userId}
-            </Typography>
-          )}
-        </Box>
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="body2" color="text.secondary">
-            ✅ API configurada correctamente
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            ✅ Context API funcionando
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            ✅ Material UI integrado
-          </Typography>
-        </Box>
-      </Box>
-    </Container>
+    <Router>
+      <Layout>
+        <Routes>
+          {/* Rutas públicas */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Rutas protegidas */}
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute>
+                <HomePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/clientes"
+            element={
+              <PrivateRoute>
+                <ClientListPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/clientes/nuevo"
+            element={
+              <PrivateRoute>
+                <ClientFormPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/clientes/editar/:id"
+            element={
+              <PrivateRoute>
+                <ClientFormPage />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Redirección por defecto */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
+          {/* Página 404 */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
 export default App;
+
