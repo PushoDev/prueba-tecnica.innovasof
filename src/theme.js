@@ -67,6 +67,14 @@ const theme = createTheme({
           textTransform: 'none',
           fontWeight: 500,
           borderRadius: 4,
+          cursor: 'pointer',
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          cursor: 'pointer',
         },
       },
     },

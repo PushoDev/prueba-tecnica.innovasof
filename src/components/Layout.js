@@ -60,12 +60,12 @@ function Layout({ children }) {
                 <MenuIcon />
               </IconButton>
               <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                COMPAÑÍA PRUEBA
+                Innovasoft
               </Typography>
               <Typography variant="body2" sx={{ mr: 2 }}>
-                Nombre de Usuario
+                {user?.username || 'Usuario'}
               </Typography>
-              <IconButton color="inherit" onClick={handleLogout}>
+              <IconButton color="inherit" onClick={handleLogout} sx={{ cursor: 'pointer' }}>
                 <LogoutIcon />
               </IconButton>
             </Toolbar>
@@ -127,6 +127,7 @@ function Layout({ children }) {
                     key={item.text}
                     onClick={() => navigate(item.path)}
                     sx={{
+                      cursor: 'pointer',
                       backgroundColor: isActive(item.path)
                         ? 'rgba(33, 150, 243, 0.1)'
                         : 'transparent',
@@ -144,16 +145,19 @@ function Layout({ children }) {
                         color: isActive(item.path) ? '#2196f3' : '#666',
                       }}
                     >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: '0.75rem',
-                          mr: 1,
-                        }}
-                      >
-                        {item.code}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '0.75rem',
+                            mr: 1,
+                          }}
+                        >
+                          {item.code}
+                        </Typography>
+                        {React.cloneElement(item.icon, { fontSize: 'small' })}
+                      </Box>
                     </ListItemIcon>
                     <ListItemText
                       primary={item.text}
