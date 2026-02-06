@@ -55,7 +55,7 @@ function LoginPage() {
       login(
         {
           token: response.token,
-          userId: response.userId,
+          userId: response.userid, // Match Swagger screenshot
           username: formData.username,
         },
         formData.rememberMe
