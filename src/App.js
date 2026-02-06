@@ -6,7 +6,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import ClientListPage from './pages/ClientListPage';
-import ClientFormPage from './pages/ClientFormPage';
+import ClientCreatePage from './pages/ClientCreatePage';
+import ClientEditPage from './pages/ClientEditPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -39,7 +40,7 @@ function App() {
             path="/clientes/nuevo"
             element={
               <PrivateRoute>
-                <ClientFormPage />
+                <ClientCreatePage />
               </PrivateRoute>
             }
           />
@@ -47,7 +48,7 @@ function App() {
             path="/clientes/editar/:id"
             element={
               <PrivateRoute>
-                <ClientFormPage />
+                <ClientEditPage />
               </PrivateRoute>
             }
           />

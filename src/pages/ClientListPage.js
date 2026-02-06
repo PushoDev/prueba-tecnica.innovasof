@@ -50,13 +50,13 @@ function ClientListPage() {
     severity: 'success',
   });
 
-  const fetchClients = async () => {
+  const fetchClients = React.useCallback(async () => {
     setLoading(true);
     try {
       const response = await clientService.listClients({
         nombre: filters.nombre,
         identificacion: filters.identificacion,
-        usuarioId: user?.userId || '',
+        usuarioId: user?.userId || localStorage.getItem('userId') || '',
       });
       setClients(response.data || response || []);
     } catch (error) {
@@ -66,11 +66,11 @@ function ClientListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters.nombre, filters.identificacion, user?.userId]);
 
   useEffect(() => {
     fetchClients();
-  }, []);
+  }, [fetchClients]);
 
   const handleFilterChange = (e) => {
     setFilters({
@@ -133,7 +133,7 @@ function ClientListPage() {
 
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={5}>
+          <Grid size={{ xs: 12, sm: 5 }}>
             <TextField
               fullWidth
               size="small"
@@ -143,7 +143,7 @@ function ClientListPage() {
               onChange={handleFilterChange}
             />
           </Grid>
-          <Grid item xs={12} sm={5}>
+          <Grid size={{ xs: 12, sm: 5 }}>
             <TextField
               fullWidth
               size="small"
@@ -153,7 +153,7 @@ function ClientListPage() {
               onChange={handleFilterChange}
             />
           </Grid>
-          <Grid item xs={12} sm={2}>
+          <Grid size={{ xs: 12, sm: 2 }} sx={{ display: 'flex', justifyContent: 'center' }}>
             <IconButton
               color="primary"
               onClick={handleSearch}
