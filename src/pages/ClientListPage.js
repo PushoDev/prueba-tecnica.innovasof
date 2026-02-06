@@ -13,6 +13,13 @@ import {
   TableRow,
   IconButton,
   Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
@@ -20,6 +27,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SearchIcon from '@mui/icons-material/Search';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import clientService from '../services/clientService';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,6 +41,15 @@ function ClientListPage() {
   });
   const [loading, setLoading] = useState(false);
 
+  // Modal & Notification State
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState(null);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
   const fetchClients = async () => {
     setLoading(true);
     try {
@@ -41,10 +58,10 @@ function ClientListPage() {
         identificacion: filters.identificacion,
         usuarioId: user?.userId || '',
       });
-      console.log('Clientes:', response);
       setClients(response.data || response || []);
     } catch (error) {
       console.error('Error al cargar clientes:', error);
+      showNotification('Error al cargar la lista de clientes', 'error');
       setClients([]);
     } finally {
       setLoading(false);
@@ -71,14 +88,40 @@ function ClientListPage() {
     setTimeout(() => fetchClients(), 100);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Está seguro de eliminar este cliente?')) {
-      try {
-        await clientService.deleteClient(id);
-        fetchClients();
-      } catch (error) {
-        console.error('Error al eliminar:', error);
-      }
+  const openDeleteConfirmation = (id) => {
+    setSelectedClientId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const closeDeleteConfirmation = () => {
+    setSelectedClientId(null);
+    setDeleteDialogOpen(false);
+  };
+
+  const showNotification = (message, severity = 'success') => {
+    setNotification({
+      open: true,
+      message,
+      severity,
+    });
+  };
+
+  const handleCloseNotification = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setNotification({ ...notification, open: false });
+  };
+
+  const handleDelete = async () => {
+    if (!selectedClientId) return;
+    try {
+      await clientService.deleteClient(selectedClientId);
+      showNotification('¡Éxito! Cliente eliminado correctamente');
+      fetchClients();
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      showNotification('Error al eliminar el cliente', 'error');
+    } finally {
+      closeDeleteConfirmation();
     }
   };
 
@@ -125,12 +168,13 @@ function ClientListPage() {
         </Grid>
       </Paper>
 
-      <Paper sx={{ mb: 2 }}>
+      <Paper sx={{ mb: 2, overflow: 'hidden' }}>
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
             onClick={() => navigate('/clientes/nuevo')}
+            sx={{ textTransform: 'none' }}
           >
             Agregar
           </Button>
@@ -138,6 +182,7 @@ function ClientListPage() {
             variant="outlined"
             startIcon={<RefreshIcon />}
             onClick={handleReset}
+            sx={{ textTransform: 'none' }}
           >
             Regresar
           </Button>
@@ -146,7 +191,7 @@ function ClientListPage() {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: '#2196f3' }}>
+              <TableRow sx={{ backgroundColor: '#1976d2' }}>
                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>
                   Identificación
                 </TableCell>
@@ -173,7 +218,7 @@ function ClientListPage() {
                 </TableRow>
               ) : (
                 clients.map((client) => (
-                  <TableRow key={client.id || client.identificacion}>
+                  <TableRow key={client.id || client.identificacion} hover>
                     <TableCell>{client.identificacion}</TableCell>
                     <TableCell>
                       {`${client.nombre || ''} ${client.apellidos || ''}`.trim()}
@@ -189,7 +234,7 @@ function ClientListPage() {
                       <IconButton
                         size="small"
                         color="error"
-                        onClick={() => handleDelete(client.id)}
+                        onClick={() => openDeleteConfirmation(client.id)}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
@@ -201,6 +246,60 @@ function ClientListPage() {
           </Table>
         </TableContainer>
       </Paper>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={closeDeleteConfirmation}
+        PaperProps={{
+          sx: { borderRadius: 2, p: 1, minWidth: 320 }
+        }}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <WarningAmberIcon color="warning" sx={{ fontSize: 32 }} />
+          Confirmar Eliminación
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button
+            onClick={closeDeleteConfirmation}
+            variant="outlined"
+            sx={{ textTransform: 'none', color: '#666', borderColor: '#ccc' }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleDelete}
+            variant="contained"
+            color="error"
+            autoFocus
+            sx={{ textTransform: 'none' }}
+          >
+            Eliminar Cliente
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Status Snackbar */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={4000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.severity}
+          variant="filled"
+          sx={{ width: '100%', boxShadow: 3 }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
