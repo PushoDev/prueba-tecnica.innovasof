@@ -32,14 +32,14 @@ function ClientFormPage() {
     identificacion: '',
     nombre: '',
     apellidos: '',
-    genero: '',
-    fechaNacimiento: '',
-    fechaAfiliacion: '',
-    telefonoCelular: '',
-    telefonoOtro: '',
+    sexo: '', // Aligning with Create/Update
+    fNacimiento: '', // Aligning with Create/Update
+    fAfiliacion: '', // Aligning with Create/Update
+    celular: '', // Aligning with Create/Update
+    otroTelefono: '',
     direccion: '',
-    resena: '',
-    interesFK: '',
+    resennaPersonal: '', // Aligning with Create/Update (double 'n')
+    interesFK: '', // Aligning with Create/Update
     imagen: '',
   });
   const [error, setError] = useState('');
@@ -51,7 +51,7 @@ function ClientFormPage() {
     if (isEdit) {
       loadClient();
     }
-  }, [id]);
+  }, [id, isEdit]);
 
   const loadInterests = async () => {
     try {
@@ -66,18 +66,20 @@ function ClientFormPage() {
     try {
       const response = await clientService.getClient(id);
       const client = response.data || response;
+
+      // Map DetalleCliente_DTO to form state (which matches Create/Update names)
       setFormData({
         identificacion: client.identificacion || '',
         nombre: client.nombre || '',
         apellidos: client.apellidos || '',
-        genero: client.genero || '',
-        fechaNacimiento: client.fechaNacimiento?.split('T')[0] || '',
-        fechaAfiliacion: client.fechaAfiliacion?.split('T')[0] || '',
-        telefonoCelular: client.telefonoCelular || '',
-        telefonoOtro: client.telefonoOtro || '',
+        sexo: client.sexo || '',
+        fNacimiento: client.fNacimiento?.split('T')[0] || '',
+        fAfiliacion: client.fAfiliacion?.split('T')[0] || '',
+        celular: client.telefonoCelular || '', // Map from DTO
+        otroTelefono: client.otroTelefono || '',
         direccion: client.direccion || '',
-        resena: client.resena || '',
-        interesFK: client.interesFK || '',
+        resennaPersonal: client.resenaPersonal || client.resennaPersonal || '', // Map from DTO
+        interesFK: client.interesesId || client.interesFK || '', // Map from DTO
         imagen: client.imagen || '',
       });
     } catch (err) {
@@ -123,10 +125,10 @@ function ClientFormPage() {
       if (isEdit) {
         clientData.id = id;
         await clientService.updateClient(clientData);
-        setSuccess('Cliente actualizado exitosamente');
+        setSuccess('¡Éxito! Cliente actualizado correctamente');
       } else {
         await clientService.createClient(clientData);
-        setSuccess('Cliente creado exitosamente');
+        setSuccess('¡Éxito! Cliente creado correctamente');
       }
 
       setTimeout(() => {
@@ -146,28 +148,30 @@ function ClientFormPage() {
         Mantenimiento Clientes
       </Typography>
 
-      <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <PersonIcon sx={{ fontSize: 40, mr: 2, color: '#666' }} />
-          <Typography variant="h6">Mantenimiento de clientes</Typography>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, pb: 2, borderBottom: '1px solid #eee' }}>
+          <PersonIcon sx={{ fontSize: 32, mr: 2, color: '#1976d2' }} />
+          <Typography variant="h6" sx={{ fontWeight: 600, color: '#333' }}>
+            Mantenimiento de clientes
+          </Typography>
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 3 }}>
             {error}
           </Alert>
         )}
 
         {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
+          <Alert severity="success" sx={{ mb: 3 }}>
             {success}
           </Alert>
         )}
 
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             {/* Fila 1 */}
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -178,7 +182,7 @@ function ClientFormPage() {
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -189,7 +193,7 @@ function ClientFormPage() {
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <TextField
                 fullWidth
                 size="small"
@@ -202,12 +206,12 @@ function ClientFormPage() {
             </Grid>
 
             {/* Fila 2 */}
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <FormControl fullWidth size="small" required>
                 <InputLabel>Género *</InputLabel>
                 <Select
-                  name="genero"
-                  value={formData.genero}
+                  name="sexo"
+                  value={formData.sexo}
                   onChange={handleChange}
                   label="Género *"
                 >
@@ -217,27 +221,27 @@ function ClientFormPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <TextField
                 fullWidth
                 size="small"
                 type="date"
                 label="Fecha de nacimiento"
-                name="fechaNacimiento"
-                value={formData.fechaNacimiento}
+                name="fNacimiento"
+                value={formData.fNacimiento}
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <TextField
                 fullWidth
                 size="small"
                 type="date"
                 label="Fecha de afiliación"
-                name="fechaAfiliacion"
-                value={formData.fechaAfiliacion}
+                name="fAfiliacion"
+                value={formData.fAfiliacion}
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
                 required
@@ -245,27 +249,27 @@ function ClientFormPage() {
             </Grid>
 
             {/* Fila 3 */}
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <TextField
                 fullWidth
                 size="small"
                 label="Teléfono Celular"
-                name="telefonoCelular"
-                value={formData.telefonoCelular}
+                name="celular"
+                value={formData.celular}
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <TextField
                 fullWidth
                 size="small"
                 label="Teléfono Otro"
-                name="telefonoOtro"
-                value={formData.telefonoOtro}
+                name="otroTelefono"
+                value={formData.otroTelefono}
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={4}>
               <FormControl fullWidth size="small" required>
                 <InputLabel>Interés *</InputLabel>
                 <Select
@@ -284,8 +288,8 @@ function ClientFormPage() {
               </FormControl>
             </Grid>
 
-            {/* Dirección */}
-            <Grid item xs={12}>
+            {/* Dirección y Reseña */}
+            <Grid size={12}>
               <TextField
                 fullWidth
                 size="small"
@@ -297,57 +301,81 @@ function ClientFormPage() {
                 rows={2}
               />
             </Grid>
-
-            {/* Reseña */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth
                 size="small"
                 label="Reseña"
-                name="resena"
-                value={formData.resena}
+                name="resennaPersonal"
+                value={formData.resennaPersonal}
                 onChange={handleChange}
                 multiline
-                rows={3}
+                rows={2}
               />
             </Grid>
 
-            {/* Imagen */}
-            <Grid item xs={12}>
-              <Button variant="outlined" component="label">
-                Seleccionar Imagen
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </Button>
-              {formData.imagen && (
-                <Typography variant="caption" sx={{ ml: 2 }}>
-                  Imagen cargada
-                </Typography>
-              )}
-            </Grid>
+            {/* Acciones */}
+            <Grid size={12}>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mt: 2,
+                pt: 3,
+                borderTop: '1px solid #eee'
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    size="medium"
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Seleccionar Imagen
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                  </Button>
+                  {formData.imagen && (
+                    <Typography variant="body2" color="success.main" sx={{ display: 'flex', alignItems: 'center' }}>
+                      ✓ Imagen lista
+                    </Typography>
+                  )}
+                </Box>
 
-            {/* Botones */}
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
-                <Button
-                  variant="outlined"
-                  startIcon={<SaveIcon />}
-                  type="submit"
-                  disabled={loading}
-                >
-                  Guardar
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<ArrowBackIcon />}
-                  onClick={() => navigate('/clientes')}
-                >
-                  Regresar
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                    type="submit"
+                    disabled={loading}
+                    sx={{
+                      px: 4,
+                      textTransform: 'none',
+                      backgroundColor: '#1976d2',
+                      '&:hover': { backgroundColor: '#1565c0' }
+                    }}
+                  >
+                    Guardar
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate('/clientes')}
+                    sx={{
+                      px: 4,
+                      textTransform: 'none',
+                      color: '#666',
+                      borderColor: '#ccc',
+                      '&:hover': { borderColor: '#999', backgroundColor: '#f5f5f5' }
+                    }}
+                  >
+                    Regresar
+                  </Button>
+                </Box>
               </Box>
             </Grid>
           </Grid>
