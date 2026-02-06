@@ -78,14 +78,41 @@ function LoginPage() {
 
   return (
     <Container maxWidth="sm">
-      <Box sx={{ mt: 8, mb: 4 }}>
-        <Card elevation={3}>
+      <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* Logo and Branding */}
+        <Box sx={{ mb: 3, textAlign: 'center' }}>
+          <img
+            src="/cliente.svg"
+            alt="Logo"
+            style={{ width: '80px', height: '80px', marginBottom: '16px' }}
+          />
+          <Typography
+            variant="h5"
+            sx={{
+              color: '#ed6c02', // Orange/Amber from image
+              fontWeight: 500,
+              lineHeight: 1.2,
+              mb: 1
+            }}
+          >
+            Prueba técnica programador<br />
+            React Js
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: '#ed6c02',
+              fontWeight: 400
+            }}
+          >
+            Innovasoft S.A
+          </Typography>
+        </Box>
+
+        <Card elevation={3} sx={{ width: '100%', maxWidth: 450 }}>
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom align="center">
+            <Typography variant="h5" component="h2" gutterBottom align="center" sx={{ mb: 3, fontWeight: 600 }}>
               Iniciar Sesión
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-              Sistema de Gestión de Clientes - Innovasoft S.A.
             </Typography>
 
             {error && (
