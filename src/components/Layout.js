@@ -60,7 +60,7 @@ function Layout({ children }) {
                 <MenuIcon />
               </IconButton>
               <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                Innovasoft
+                Sistema de Gestión de Clientes - Innovasoft S.A.
               </Typography>
               <Typography variant="body2" sx={{ mr: 2 }}>
                 {user?.username || 'Usuario'}
