@@ -11,6 +11,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   IconButton,
   Grid,
   Dialog,
@@ -49,6 +50,10 @@ function ClientListPage() {
     message: '',
     severity: 'success',
   });
+
+  // Pagination State
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
 
   const fetchClients = React.useCallback(async () => {
     setLoading(true);
@@ -111,6 +116,15 @@ function ClientListPage() {
     setNotification({ ...notification, open: false });
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const handleDelete = async () => {
     if (!selectedClientId) return;
     try {
@@ -119,7 +133,7 @@ function ClientListPage() {
       fetchClients();
     } catch (error) {
       console.error('Error al eliminar:', error);
-      showNotification('Error al eliminar el cliente', 'error');
+      showNotification('Esta opcion no esta disponible', 'error');
     } finally {
       closeDeleteConfirmation();
     }
@@ -217,34 +231,49 @@ function ClientListPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                clients.map((client) => (
-                  <TableRow key={client.id || client.identificacion} hover>
-                    <TableCell>{client.identificacion}</TableCell>
-                    <TableCell>
-                      {`${client.nombre || ''} ${client.apellidos || ''}`.trim()}
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        color="primary"
-                        onClick={() => navigate(`/clientes/editar/${client.id}`)}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => openDeleteConfirmation(client.id)}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
+                clients
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((client) => (
+                    <TableRow key={client.id || client.identificacion} hover>
+                      <TableCell>{client.identificacion}</TableCell>
+                      <TableCell>
+                        {`${client.nombre || ''} ${client.apellidos || ''}`.trim()}
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => navigate(`/clientes/editar/${client.id}`)}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => openDeleteConfirmation(client.id)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
               )}
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 15, 25]}
+          component="div"
+          count={clients.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Filas por página:"
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} de ${count !== -1 ? count : `más de ${to}`}`
+          }
+        />
       </Paper>
 
       {/* Delete Confirmation Dialog */}
